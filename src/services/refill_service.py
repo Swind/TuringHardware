@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from concurrent.futures import TimeoutError
 import asyncio
 from logzero import logger
 
@@ -19,7 +20,7 @@ class RefillService(object):
     async def start(self):
         await self._bus.reg_rep('tank.refill', self.command_callback)
         self._stop = False
-        while self._stop:
+        while not self._stop:
             if self._pause is False:
                 response = await self._bus.req('tank.water',
                                                {'command': 'get'})
