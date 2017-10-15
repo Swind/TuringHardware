@@ -16,7 +16,7 @@ class NatsBus(object):
         async def wrap(msg):
             response = await callback(json.loads(msg.data.decode()))
             if response is not None:
-                await self.pub(msg.reply, response)
+                await self._nats_client.publish(msg.reply, json.dumps(response).encode('utf-8'))
 
         return wrap
 
