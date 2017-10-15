@@ -42,9 +42,8 @@ class TankWaterService(object):
 
         is_water_full = self._sensor.is_water_full()
         self._available = True
-        if is_water_full != self._is_water_full:
-            self._is_water_full = is_water_full
-            await self._bus.pub('tank.water', self._get_status())
+        self._is_water_full = is_water_full
+        await self._bus.pub('tank.water', self._get_status())
 
     async def rep_water_command(self, data):
         cmd = data['command']
