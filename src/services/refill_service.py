@@ -22,12 +22,15 @@ class RefillService(object):
         self._stop = False
         while not self._stop:
             if self._pause is False:
-                response = await self._bus.req('tank.water',
-                                               {'command': 'get'})
-                if response['status'] != 'ok' or response['water'] is True:
+                try:
+                    response = await self._bus.req('tank.water',
+                                                   {'command': 'get'})
+                    if response['status'] != 'ok' or response['water'] is True:
+                        await self._stop_pwm()
+                    else:
+                        await self._start_pwm()
+                except TimeoutError:
                     await self._stop_pwm()
-                else:
-                    await self._start_pwm()
             else:
                 await self._stop_pwm()
             await asyncio.sleep(float(self._interval_ms) / 1000)
