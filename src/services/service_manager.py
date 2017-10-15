@@ -119,7 +119,7 @@ def create_refill_service(service_config, hwmanager, bus):
         service_config(dict): refill service configuration
     """
     dev = service_config['dev']
-    scan_interval_ms = service_config['scan_interavl_ms']
+    scan_interval_ms = service_config['scan_interval_ms']
     hardware = hwmanager.find_hardware(dev)
     if hardware is None:
         logger.error("Cannot get dev '%s' in refill service", dev)
