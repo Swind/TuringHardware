@@ -18,12 +18,12 @@ class ServiceManager(object):
     def __init__(self):
         self._services = {}
 
-    def import_config(self, configs, hwmanager, bus):
+    def import_config(self, configs, hwmanager, busmanager):
         """
         Args:
             configs (dict): service configuration
             hwmanager (HardwareManager): get hardware from hwmanager
-            bus (bus): connect each services
+            busmanager (BusManager): create the client to connect each services
         """
         for config in configs:
             service_name = list(config.keys())[0]
@@ -40,6 +40,11 @@ class ServiceManager(object):
             if config[service_name]['enable'] is not True:
                 logger.info("Service '%s' is disabled'", service_name)
                 continue
+
+            # Use the busmanager to create a bus client for this service
+            bus_path = config[service_name]['path']
+            bus = busmanager.create_bus_client(bus_path)
+            bus.start()
 
             service = SERVICE_MAPPING[service_name](config[service_name],
                                                     hwmanager, bus)

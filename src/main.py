@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import asyncio
 import argparse
+import asyncio
 from contextlib import suppress
 
 import yaml
+
+from bus.nats_bus import NatsBus
 from hardware.hw_manager import HWManager
 from services.service_manager import ServiceManager
-from services.nats_bus import NatsBus
 
 
 async def main():

@@ -81,32 +81,38 @@ hardwares:
 services:
 
   - output_temp_service:
+      path: output.temp
       enable: true
       scan_interval_ms: 1000
       dev: "max31856-0"
 
   - tank_temp_service:
+      path: tank.temp
       enable: true
       scan_interval_ms: 1000
       dev: "max31865-0"
 
   - tank_water_service:
+      path: tank.water
       enable: true
       scan_interval_ms: 1000
       dev: "water-detector-0"
 
   - refill_service:
+      path: tank.refill
       enable: true
       scan_interval_ms: 1000
       dev: "pwm-1"
 
   - heater:
+      path: tank.heater
       enable: true
       scan_interval_ms: 1000
       pwm_dev: "pwm-0"
       pid_dev: "pid-0"
 
   - barista:
+      path: barista
       enable: true
       moving_dev: "smoothie-0"
       extruder_dev: "extruder-0"
