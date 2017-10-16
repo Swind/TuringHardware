@@ -66,7 +66,7 @@ class SWPWM(PWM):
 
     @dutycycle.setter
     def dutycycle(self, dutycycle):
-        if not 0 < dutycycle < 1:
+        if not 0 <= dutycycle <= 1:
             raise ValueError("Duty cycle should be ranged in 0 and 1")
         self._lock.acquire()
         self._dutycycle = dutycycle
