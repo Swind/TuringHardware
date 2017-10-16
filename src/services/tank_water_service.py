@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from concurrent import futures
 import asyncio
+from logzero import logger
 
 
 class TankWaterService(object):
@@ -56,3 +58,20 @@ class TankWaterService(object):
         if self._available is True:
             return {"status": "ok", "water": self._is_water_full}
         return {'status': "error", 'message': self._message}
+
+
+class TankWaterClient(object):
+    def __init__(self, bus):
+        self._bus = bus
+
+    async def get_water_level(self):
+        try:
+            response = await self._bus.req('tank.water', {'command': 'get'})
+            if response['status'] != 'ok':
+                logger.warn("Cannot get 'tank.water' status: %s",
+                            response['message'])
+                return None
+            return response['water']
+        except futures.TimeoutError:
+            logger.warn("Cannot get 'tank.water' status: request timeout")
+            return None

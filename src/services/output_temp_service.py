@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from concurrent import futures
 import asyncio
 from logzero import logger
 from hardware.error import HardwareError
@@ -65,9 +66,14 @@ class OutputTempClient(object):
         self._bus = bus
 
     async def get_temperature(self):
-        response = await self._bus.req('output.temperature',
-                                       {'command': 'get'})
-        if response['status'] != 'ok':
-            logger.error("Cannot get output temperature")
+        try:
+            response = await self._bus.req('output.temperature',
+                                           {'command': 'get'})
+            if response['status'] != 'ok':
+                logger.warn("Cannot get output temperature: %s",
+                             response['message'])
+                return None
+            return response['temperature']
+        except futures.TimeoutError:
+            logger.warn("Cannot get output temperature: request timeout")
             return None
-        return response['temperature']
