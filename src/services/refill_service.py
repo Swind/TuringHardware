@@ -25,8 +25,10 @@ class RefillService(object):
         while not self._stop:
             if self._pause is False:
                 water_level = await self._tank_water_client.get_water_level()
-                if water_level is None or water_level is True:
+                if water_level is None:
                     logger.error("Cannot get water level, stop refill")
+                    await self._stop_pwm()
+                elif water_level is True:
                     await self._stop_pwm()
                 else:
                     await self._start_pwm()
