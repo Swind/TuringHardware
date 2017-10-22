@@ -45,7 +45,7 @@ class TankTempService(object):
             await self._bus.pub('tank.temperature', self._get_status())
 
     async def start(self):
-        await self._bus.reg_rep('tank_temperature', self.command_callback)
+        await self._bus.reg_rep('tank.temperature', self.command_callback)
         self._stop = False
         while not self._stop:
             await self.pub_tank_temperature()
