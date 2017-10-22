@@ -4,7 +4,7 @@
 from concurrent import futures
 import asyncio
 from logzero import logger
-from services.tank_temp_service import TankTemperatureClient
+from services.tank_temp_service import TankTempClient
 
 
 class Heater(object):
@@ -17,7 +17,7 @@ class Heater(object):
         self._target_temp = 0
         self._stop = False
         self._stop_event = asyncio.Event()
-        self._tank_temp_client = TankTemperatureClient(bus)
+        self._tank_temp_client = TankTempClient(bus)
 
     async def start(self):
         self._stop = False
