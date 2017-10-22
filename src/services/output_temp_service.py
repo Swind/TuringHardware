@@ -21,33 +21,28 @@ class OutputTempService(object):
         self._tempc = None
         self._stop = False
         self._stop_event = asyncio.Event()
+        self._temp_available = False
+        self._message = "Not ready"
 
     async def pub_output_water_temperature(self):
         if not self._sensor.is_connected() and not self._sensor.connect():
-            await self._bus.pub('output.temperature', {
-                "status": "error",
-                "message": "Cannot connect to sensor"
-            })
-            return
+            self._temp_available = False
+            self._message = "Cannot connect to sensor"
+            await self._bus.pub('output.temperature', self._status())
 
         try:
             tempc = self._sensor.read_measure_temp_c()
             self._tempc = tempc
-            await self._bus.pub('output.temperature', {
-                "status": "ok",
-                "temperature": tempc,
-                "error_count": self._error_count
-            })
+            self._message = None
+            self._temp_available = True
+            await self._bus.pub('output.temperature', self._status())
         except HardwareError as error:
+            self._temp_available = False
             self._error_count += 1
+            self._message = "output sensor '%s' got error: '%s'" % (
+                error.name, error.message)
             self._sensor.disconnect()
-            await self._bus.pub('output.temperature', {
-                "status":
-                "error",
-                "message":
-                "output sensor '%s' got error: '%s'" % (error.name,
-                                                        error.message)
-            })
+            await self._bus.pub('output.temperature', self._status())
 
     async def start(self):
         self._stop = False
@@ -60,6 +55,21 @@ class OutputTempService(object):
         self._stop = True
         await self._stop_event.wait()
 
+    async def command_callback(self, data):
+        cmd = data['command']
+        if cmd == 'get':
+            return self._status()
+
+    def _status(self):
+        if self._temp_available is True:
+            return {
+                "status": "ok",
+                "temperature": self._tempc,
+                "error_count": self._error_count
+            }
+        else:
+            return {"status": "error", "message": self._message}
+
 
 class OutputTempClient(object):
     def __init__(self, bus):
@@ -71,7 +81,7 @@ class OutputTempClient(object):
                                            {'command': 'get'})
             if response['status'] != 'ok':
                 logger.warn("Cannot get output temperature: %s",
-                             response['message'])
+                            response['message'])
                 return None
             return response['temperature']
         except futures.TimeoutError:
