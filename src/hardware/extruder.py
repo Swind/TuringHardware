@@ -20,9 +20,6 @@ class Extruder(object):
         """
         for _ in range(retry_times):
             self._uart.open()
-            if self.recv() == 'Extruder start':
-                return True
-
             self.send('')
             if self.recv() != 'ok':
                 self._uart.close()
